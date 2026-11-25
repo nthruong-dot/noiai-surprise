@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Noi AI</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#x1F338;</text></svg>">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500;600;700&display=swap');
+
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --pink-soft: #fce4ec;
+  --pink: #f8bbd0;
+  --pink-deep: #ec407a;
+  --lavender: #e8d5f5;
+  --sky: #e3f2fd;
+  --peach: #fff3e0;
+  --warm: #fff8f0;
+  --text: #4a3347;
+  --text-sub: #8a7088;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'Quicksand', sans-serif;
+  background: var(--warm);
+  color: var(--text);
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ─── Floating petals ─── */
+.petals {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  overflow: hidden;
+}
+
+.petal {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  background: var(--pink);
+  border-radius: 50% 0 50% 50%;
+  opacity: 0;
+  animation: fall linear infinite;
+}
+
+@keyframes fall {
+  0% { opacity: 0; transform: translateY(-20px) rotate(0deg) scale(0.8); }
+  10% { opacity: 0.7; }
+  90% { opacity: 0.4; }
+  100% { opacity: 0; transform: translateY(100vh) rotate(720deg) scale(0.3); }
+}
+
+/* ─── Hero ─── */
+.hero {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  z-index: 1;
+  text-align: center;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  top: -30%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(236, 64, 122, 0.08) 0%, transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.avatar-ring {
+  position: relative;
+  width: 160px;
+  height: 160px;
+  margin-bottom: 2rem;
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.avatar-ring::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink-deep), #ab47bc, #42a5f5);
+  animation: ring-spin 8s linear infinite;
+}
+
+@keyframes ring-spin {
+  to { transform: rotate(360deg); }
+}
+
+.avatar-ring::after {
+  content: '';
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: var(--warm);
+}
+
+.avatar-emoji {
+  position: absolute;
+  inset: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+  z-index: 1;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--pink-soft), var(--lavender));
+}
+
+.greeting {
+  font-size: clamp(1rem, 3vw, 1.25rem);
+  font-weight: 500;
+  color: var(--text-sub);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-bottom: 0.75rem;
+  opacity: 0;
+  animation: fadeUp 1s ease 0.3s forwards;
+}
+
+.name {
+  font-size: clamp(2.5rem, 8vw, 4.5rem);
+  font-weight: 700;
+  background: linear-gradient(135deg, var(--pink-deep), #ab47bc, #7e57c2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.15;
+  margin-bottom: 1rem;
+  opacity: 0;
+  animation: fadeUp 1s ease 0.6s forwards;
+}
+
+.tagline {
+  font-size: clamp(1rem, 3vw, 1.35rem);
+  font-weight: 400;
+  color: var(--text-sub);
+  max-width: 480px;
+  line-height: 1.7;
+  opacity: 0;
+  animation: fadeUp 1s ease 0.9s forwards;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─── Scroll indicator ─── */
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  opacity: 0;
+  animation: fadeUp 1s ease 1.5s forwards;
+}
+
+.scroll-hint span {
+  font-size: 0.75rem;
+  color: var(--text-sub);
+  letter-spacing: 0.1em;
+}
+
+.scroll-arrow {
+  width: 20px;
+  height: 20px;
+  border-right: 2px solid var(--pink-deep);
+  border-bottom: 2px solid var(--pink-deep);
+  transform: rotate(45deg);
+  animation: bounce 2s ease infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: rotate(45deg) translate(0, 0); opacity: 0.4; }
+  50% { transform: rotate(45deg) translate(5px, 5px); opacity: 1; }
+}
+
+/* ─── Cards section ─── */
+.cards-section {
+  position: relative;
+  z-index: 1;
+  padding: 4rem 1.5rem 6rem;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.section-title {
+  text-align: center;
+  font-size: clamp(1.5rem, 5vw, 2.25rem);
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 3rem;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.5rem;
+}
+
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  border: 1px solid rgba(236, 64, 122, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  opacity: 0;
+  animation: cardIn 0.8s ease forwards;
+}
+
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.25s; }
+.card:nth-child(3) { animation-delay: 0.4s; }
+
+.card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 40px rgba(236, 64, 122, 0.1);
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.card-icon {
+  font-size: 2.5rem;
+  margin-bottom: 1rem;
+}
+
+.card h3 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.card p {
+  font-size: 0.9rem;
+  color: var(--text-sub);
+  line-height: 1.6;
+}
+
+/* ─── Message section ─── */
+.message-section {
+  position: relative;
+  z-index: 1;
+  padding: 4rem 1.5rem 6rem;
+  text-align: center;
+}
+
+.message-box {
+  max-width: 560px;
+  margin: 0 auto;
+  background: linear-gradient(135deg, white, var(--pink-soft));
+  border-radius: 24px;
+  padding: 3rem 2.5rem;
+  border: 1px solid rgba(236, 64, 122, 0.12);
+  box-shadow: 0 8px 32px rgba(236, 64, 122, 0.06);
+}
+
+.message-box .heart {
+  font-size: 3rem;
+  display: inline-block;
+  animation: heartbeat 1.5s ease infinite;
+}
+
+@keyframes heartbeat {
+  0%, 100% { transform: scale(1); }
+  15% { transform: scale(1.15); }
+  30% { transform: scale(1); }
+  45% { transform: scale(1.1); }
+}
+
+.message-box h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 1rem 0 0.75rem;
+  color: var(--pink-deep);
+}
+
+.message-box p {
+  font-size: 1rem;
+  color: var(--text-sub);
+  line-height: 1.8;
+}
+
+.message-box .sign {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
+/* ─── Gift box ─── */
+.gift-section {
+  position: relative;
+  z-index: 1;
+  padding: 3rem 1.5rem 2rem;
+  text-align: center;
+}
+
+.gift-box {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1.25rem 2rem;
+  border: 2px dashed var(--pink);
+  border-radius: 20px;
+  background: white;
+  cursor: pointer;
+  transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.gift-box:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 30px rgba(236, 64, 122, 0.12);
+  border-color: var(--pink-deep);
+}
+
+.gift-box:active { transform: scale(0.95); }
+
+.gift-box.opened {
+  border-color: var(--pink-deep);
+  background: var(--pink-soft);
+}
+
+.gift-icon {
+  font-size: 2.5rem;
+  animation: wiggle 2s ease infinite;
+}
+
+.gift-box.opened .gift-icon { animation: none; }
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-8deg); }
+  75% { transform: rotate(8deg); }
+}
+
+.gift-label {
+  font-family: 'Quicksand', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--pink-deep);
+}
+
+.flower-garden {
+  position: relative;
+  width: 100%;
+  max-width: 600px;
+  height: 0;
+  margin: 0 auto;
+  overflow: visible;
+  transition: height 0.5s ease;
+}
+
+.flower-garden.active { height: 200px; }
+
+.garden-flower {
+  position: absolute;
+  bottom: 0;
+  font-size: 2rem;
+  opacity: 0;
+  transform: translateY(30px) scale(0);
+  animation: bloom 0.6s ease forwards;
+}
+
+@keyframes bloom {
+  0% { opacity: 0; transform: translateY(30px) scale(0) rotate(-20deg); }
+  60% { opacity: 1; transform: translateY(-10px) scale(1.1) rotate(5deg); }
+  100% { opacity: 1; transform: translateY(0) scale(1) rotate(0deg); }
+}
+
+/* ─── Footer ─── */
+footer {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  padding: 2rem;
+  font-size: 0.8rem;
+  color: var(--text-sub);
+}
+</style>
+</head>
+<body>
+
+<!-- Floating petals -->
+<div class="petals" id="petals"></div>
+
+<!-- Hero -->
+<section class="hero">
+  <div class="avatar-ring">
+    <div class="avatar-emoji">&#x1F338;</div>
+  </div>
+  <p class="greeting">Welcome to Noi AI</p>
+  <h1 class="name">Hu&#7923;nh Kim H&#7891;ng</h1>
+  <p class="tagline">a.k.a <strong>B&#233; S&#226;u</strong> &#8212; m&#7897;t ng&#432;&#7901;i &#273;&#7863;c bi&#7879;t, m&#7897;t n&#7909; c&#432;&#7901;i &#273;&#7865;p, v&#224; m&#7897;t tr&#225;i tim &#7845;m &#225;p nh&#432; m&#249;a xu&#226;n.</p>
+  <div class="scroll-hint">
+    <span>scroll</span>
+    <div class="scroll-arrow"></div>
+  </div>
+</section>
+
+<!-- Cards -->
+<section class="cards-section">
+  <h2 class="section-title">D&#224;nh ri&#234;ng cho em</h2>
+  <div class="cards-grid">
+    <div class="card">
+      <div class="card-icon">&#x2728;</div>
+      <h3>Ng&#432;&#7901;i truy&#7873;n c&#7843;m h&#7913;ng</h3>
+      <p>Em l&#224; l&#253; do anh mu&#7889;n t&#7841;o ra nh&#7919;ng &#273;i&#7873;u &#273;&#7865;p &#273;&#7869;. M&#7895;i th&#7913; anh l&#224;m &#273;&#7873;u c&#243; h&#236;nh b&#243;ng c&#7911;a em.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x1F33F;</div>
+      <h3>S&#7913;c m&#7841;nh d&#7883;u d&#224;ng</h3>
+      <p>Em m&#7841;nh m&#7869; theo c&#225;ch r&#7845;t ri&#234;ng &#8212; nh&#7865; nh&#224;ng nh&#432;ng kh&#244;ng g&#236; c&#243; th&#7875; lay &#273;&#7897;ng.</p>
+    </div>
+    <div class="card">
+      <div class="card-icon">&#x1F3B5;</div>
+      <h3>Giai &#273;i&#7879;u c&#7911;a anh</h3>
+      <p>N&#7871;u cu&#7897;c &#273;&#7901;i l&#224; m&#7897;t b&#224;i h&#225;t, th&#236; em l&#224; &#273;i&#7879;p kh&#250;c anh mu&#7889;n nghe m&#227;i.</p>
+    </div>
+  </div>
+</section>
+
+
+<!-- Gift box -->
+<section class="gift-section">
+  <button class="gift-box" id="giftBtn" aria-label="Open gift">
+    <span class="gift-icon">&#x1F381;</span>
+    <span class="gift-label">Ch&#7841;m v&#224;o n&#232;</span>
+  </button>
+  <div class="flower-garden" id="flowerGarden"></div>
+</section>
+
+<footer>
+  <p>Made with love &middot; Noi AI &middot; 2026</p>
+</footer>
+
+<script>
+// Generate falling petals
+const container = document.getElementById('petals');
+const colors = ['#f8bbd0', '#f48fb1', '#e8d5f5', '#bbdefb', '#ffe0b2'];
+
+for (let i = 0; i < 25; i++) {
+  const petal = document.createElement('div');
+  petal.className = 'petal';
+  petal.style.left = Math.random() * 100 + '%';
+  petal.style.animationDuration = (8 + Math.random() * 12) + 's';
+  petal.style.animationDelay = Math.random() * 15 + 's';
+  petal.style.width = (8 + Math.random() * 10) + 'px';
+  petal.style.height = petal.style.width;
+  petal.style.background = colors[Math.floor(Math.random() * colors.length)];
+  container.appendChild(petal);
+}
+// Gift box — cherry blossoms & roses
+const giftBtn = document.getElementById('giftBtn');
+const garden = document.getElementById('flowerGarden');
+const sakuraFlowers = ['\u{1F338}', '\u{1F339}', '\u{1F33A}', '\u{1F337}', '\u{1F33B}', '\u{1F33C}', '\u{1F490}', '\u{1F940}'];
+let gardenOpen = false;
+
+giftBtn.addEventListener('click', () => {
+  gardenOpen = !gardenOpen;
+  giftBtn.classList.toggle('opened', gardenOpen);
+
+  if (gardenOpen) {
+    garden.classList.add('active');
+    garden.innerHTML = '';
+    const count = 12 + Math.floor(Math.random() * 6);
+    for (let i = 0; i < count; i++) {
+      const f = document.createElement('div');
+      f.className = 'garden-flower';
+      f.textContent = sakuraFlowers[Math.floor(Math.random() * sakuraFlowers.length)];
+      f.style.left = (5 + Math.random() * 90) + '%';
+      f.style.bottom = (Math.random() * 60) + '%';
+      f.style.fontSize = (1.5 + Math.random() * 1.5) + 'rem';
+      f.style.animationDelay = (Math.random() * 0.8) + 's';
+      garden.appendChild(f);
+    }
+    giftBtn.querySelector('.gift-label').textContent = '\u{1F338} \u{1F338} \u{1F338}';
+  } else {
+    garden.classList.remove('active');
+    setTimeout(() => { garden.innerHTML = ''; }, 500);
+    giftBtn.querySelector('.gift-label').textContent = 'Ch\u1EA1m v\u00E0o n\u00E8';
+  }
+});
+</script>
+</body>
+</html>
